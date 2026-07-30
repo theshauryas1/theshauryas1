@@ -831,9 +831,7 @@ def build_info_panel_svg(dark: bool, ox: float, oy: float, w: float, h: float) -
     lines.append(text(ox+96, py_cur, "~/profile", chrome, 12))
     lines.append(text(ox+172, py_cur, "$ ", text_col, 12))
     lines.append(
-        f'<rect x="{ox+188}" y="{py_cur-12}" width="8" height="13" fill="{chrome}">'
-        f'<animate attributeName="opacity" values="1;0;1" dur="1s" calcMode="discrete" repeatCount="indefinite"/>'
-        f'</rect>'
+        f'<rect x="{ox+188}" y="{py_cur-12}" width="8" height="13" fill="{chrome}" opacity="0.8"/>'
     )
 
     # Handle pill

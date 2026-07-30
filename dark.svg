@@ -9219,7 +9219,7 @@
 <text x="460.0" y="512.0" text-anchor="start" fill="#94A3B8" font-size="12" font-weight="normal" font-family="Share Tech Mono, monospace">:</text>
 <text x="468.0" y="512.0" text-anchor="start" fill="#22D3EE" font-size="12" font-weight="normal" font-family="Share Tech Mono, monospace">~/profile</text>
 <text x="544.0" y="512.0" text-anchor="start" fill="#F8FAFC" font-size="12" font-weight="normal" font-family="Share Tech Mono, monospace">$ </text>
-<rect x="560.0" y="500.0" width="8" height="13" fill="#22D3EE"><animate attributeName="opacity" values="1;0;1" dur="1s" calcMode="discrete" repeatCount="indefinite"/></rect>
+<rect x="560.0" y="500.0" width="8" height="13" fill="#22D3EE" opacity="0.8"/>
 <rect x="682.0" y="544.0" width="160" height="26" rx="13" fill="#22D3EE" opacity="0.15"/>
 <rect x="682.0" y="544.0" width="160" height="26" rx="13" fill="none" stroke="#22D3EE" stroke-width="0.8"/>
 <text x="762.0" y="561.0" text-anchor="middle" fill="#22D3EE" font-size="13" font-weight="bold" font-family="Share Tech Mono, monospace">@theshauryas1</text>
