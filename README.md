@@ -9,9 +9,9 @@
 
 <!-- ──────────────────────────── BANNER ──────────────────────────────── -->
 <picture>
-  <source media="(prefers-color-scheme: dark)"  srcset="./dark.svg">
-  <source media="(prefers-color-scheme: light)" srcset="./light.svg">
-  <img src="./dark.svg" alt="Shaurya Sharma — AI/ML Engineer" width="100%">
+  <source media="(prefers-color-scheme: dark)"  srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/light.svg">
+  <img src="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg" alt="Shaurya Sharma — AI/ML Engineer" width="100%">
 </picture>
 
 <br/>
