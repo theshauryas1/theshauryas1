@@ -697,107 +697,19 @@ def build_portrait_group_svg(
     loop_dur: float,
     portrait_hold: float,
 ) -> str:
-    """
-    Build the SVG <g> element containing all portrait dots with
-    intro fade-in (per intro-group) and loop drift (per drift-band).
-
-    Key optimisation: animate the GROUP, not each dot.
-    - One <g> per intro-group -> one <animate opacity> per group (~60 total)
-    - One <g> per drift-band  -> one <animateTransform> per band (~94 total)
-    This cuts file size from ~17MB to ~400KB vs. per-dot SMIL.
-    """
     r = dot_r
-    lx, ly = logo_centroid
-
-    # ── pre-compute drift offsets per band ───────────────────────────────────
-    band_offsets = []
-    for band in drift_bands:
-        if not band:
-            band_offsets.append((0.0, 0.0))
-            continue
-        cx_b = float(np.mean([positions[i][0] for i in band]))
-        cy_b = float(np.mean([positions[i][1] for i in band]))
-        band_offsets.append(((lx - cx_b) * drift_fraction,
-                              (ly - cy_b) * drift_fraction))
-
-    dot_to_band: dict[int, int] = {}
-    for b_idx, band in enumerate(drift_bands):
-        for dot_idx in band:
-            dot_to_band[dot_idx] = b_idx
-
-    # ── group dots by intro-group (from intro_timing) ───────────────────────
-    # intro_timing: {dot_idx: (begin_s, dur_s)}
-    # We need reverse map: (begin_s, dur_s) -> [dot_idx]
-    from collections import defaultdict
-    intro_group_map: dict[tuple, list[int]] = defaultdict(list)
-    for dot_idx in range(len(positions)):
-        key = intro_timing.get(dot_idx, (0.0, 0.15))
-        intro_group_map[key].append(dot_idx)
-
-    # ── keyframe parameters (loop) ───────────────────────────────────────────
-    t_hold     = portrait_hold / loop_dur
-    t_drift_out = (portrait_hold + 0.5) / loop_dur
-    t_drift_in  = (loop_dur - 0.5) / loop_dur
-    kt_loop = f"0;{t_hold:.3f};{t_drift_out:.3f};{t_drift_in:.3f};1"
-
-    # ── build a band -> [dot_idx] lookup for the inner loop ─────────────────
-    band_dots: dict[int, list[int]] = defaultdict(list)
-    for dot_idx in range(len(positions)):
-        band_dots[dot_to_band.get(dot_idx, 0)].append(dot_idx)
-
     out = ['<g id="portrait-layer" shape-rendering="crispEdges">']
-
-    # Emit one <g> per intro-group (handles fade-in opacity animation)
-    for (begin_s, dur_s), group_dot_ids in intro_group_map.items():
-        # Within this intro group, further split by drift band
-        # so the drift transform can be applied at band level.
-        # Structure: <g opacity animate> -> <g animateTransform> -> <rect>s
-
-        # band -> dots that are in this intro group AND this band
-        ig_band: dict[int, list[int]] = defaultdict(list)
-        for dot_idx in group_dot_ids:
-            ig_band[dot_to_band.get(dot_idx, 0)].append(dot_idx)
-
-        # Outer group: intro fade-in
+    for px, py in positions:
         out.append(
-            f'<g opacity="0">'
-            f'<animate attributeName="opacity" from="0" to="1"'
-            f' begin="{begin_s:.3f}s" dur="{dur_s:.3f}s" fill="freeze"/>'
+            f'<rect x="{px - r:.2f}" y="{py - r:.2f}"'
+            f' width="{2*r:.2f}" height="{2*r:.2f}" fill="{color}"/>'
         )
-
-        loop_begin = begin_s + dur_s  # loop starts after intro completes
-
-        for b_idx, dot_ids in ig_band.items():
-            dox, doy = band_offsets[b_idx]
-            tx_vals = f"0,0;0,0;{dox:.2f},{doy:.2f};{dox:.2f},{doy:.2f};0,0"
-
-            # Inner group: drift animation
-            out.append(
-                f'<g>'
-                f'<animateTransform attributeName="transform" type="translate"'
-                f' values="{tx_vals}" keyTimes="{kt_loop}"'
-                f' dur="{loop_dur:.1f}s" begin="{loop_begin:.3f}s"'
-                f' repeatCount="indefinite" additive="sum"/>'
-            )
-
-            # Static rects — no per-dot animation
-            for dot_idx in dot_ids:
-                px, py = positions[dot_idx]
-                out.append(
-                    f'<rect x="{px - r:.2f}" y="{py - r:.2f}"'
-                    f' width="{2*r:.2f}" height="{2*r:.2f}" fill="{color}"/>'
-                )
-
-            out.append('</g>')  # close inner drift group
-
-        out.append('</g>')  # close outer intro group
-
-    out.append('</g>')  # close portrait-layer
+    out.append('</g>')
     return "\n".join(out)
 
 
 def build_travellers_svg(
-    logo_positions: dict,  # logo_name -> (n,2) array
+    logo_positions: dict,
     n_travellers: int,
     loop_dur: float,
     portrait_hold: float,
@@ -807,121 +719,7 @@ def build_travellers_svg(
     color: str,
     dot_r: float,
 ) -> str:
-    """
-    Build the traveller swarm SVG with optimal-transport morphing.
-    """
-    r = dot_r * 1.8  # travellers are slightly larger
-    n = n_travellers
-    lines = [f'<g id="traveller-layer" shape-rendering="crispEdges">']
-
-    # Build per-logo point arrays
-    arrays = [logo_positions[name] for name in logo_order]
-
-    # Optimal-transport matching chain
-    perms = []
-    for i in range(len(arrays) - 1):
-        perms.append(optimal_transport_match(arrays[i], arrays[i + 1]))
-    # Close the loop
-    perms.append(optimal_transport_match(arrays[-1], arrays[0]))
-
-    # Build timeline
-    # Logo 0 starts at portrait_hold, each logo holds logo_hold, transition logo_trans
-    phase_times = []
-    t = portrait_hold
-    for i in range(len(logo_order)):
-        phase_times.append(t)
-        t += logo_hold + logo_trans
-    # Normalise to [0,1] for keyTimes
-    # Opacity: travellers are invisible during portrait phase, visible during logos
-
-    n_phases = len(logo_order)
-    # Build keyTimes and values for each dot
-    for dot_i in range(n):
-        # Build position keyframes
-        # For each logo phase, the dot is at arrays[logo_idx][mapped_idx]
-        # We need to trace each dot's position through OT matchings
-
-        # Find position at each logo
-        pos_at_logo = [None] * n_phases
-        pos_at_logo[0] = arrays[0][dot_i % len(arrays[0])]
-        cur = dot_i % len(arrays[0])
-        for li in range(1, n_phases):
-            nxt = perms[li - 1][cur % len(perms[li - 1])]
-            pos_at_logo[li] = arrays[li][nxt % len(arrays[li])]
-            cur = nxt
-
-        # Build SVG animate element
-        kts = []
-        tx_vals = []
-        ty_vals = []
-        op_vals = []
-
-        # t=0: hidden (portrait phase)
-        kts.append("0")
-        tx_vals.append(f"{pos_at_logo[0][0]:.1f}")
-        ty_vals.append(f"{pos_at_logo[0][1]:.1f}")
-        op_vals.append("0")
-
-        # portrait hold end
-        t_hold_n = portrait_hold / loop_dur
-        kts.append(f"{t_hold_n:.3f}")
-        tx_vals.append(f"{pos_at_logo[0][0]:.1f}")
-        ty_vals.append(f"{pos_at_logo[0][1]:.1f}")
-        op_vals.append("0")
-
-        # Each logo phase
-        for li, logo_name in enumerate(logo_order):
-            t_start = phase_times[li] / loop_dur
-            t_end = (phase_times[li] + logo_hold) / loop_dur
-            t_trans = min(1.0, (phase_times[li] + logo_hold + logo_trans) / loop_dur)
-
-            # Fade in
-            kts.append(f"{min(t_start + 0.05, t_end):.3f}")
-            tx_vals.append(f"{pos_at_logo[li][0]:.1f}")
-            ty_vals.append(f"{pos_at_logo[li][1]:.1f}")
-            op_vals.append("1")
-
-            # Hold
-            kts.append(f"{t_end:.3f}")
-            tx_vals.append(f"{pos_at_logo[li][0]:.1f}")
-            ty_vals.append(f"{pos_at_logo[li][1]:.1f}")
-            op_vals.append("1")
-
-            # Transition
-            next_li = (li + 1) % n_phases
-            kts.append(f"{t_trans:.3f}")
-            tx_vals.append(f"{pos_at_logo[next_li][0]:.1f}")
-            ty_vals.append(f"{pos_at_logo[next_li][1]:.1f}")
-            op_vals.append("0" if t_trans >= 0.999 else "1")
-
-        kts.append("1")
-        tx_vals.append(f"{pos_at_logo[0][0]:.1f}")
-        ty_vals.append(f"{pos_at_logo[0][1]:.1f}")
-        op_vals.append("0")
-
-        kt_str = ";".join(kts)
-        tx_str = ";".join(tx_vals)
-        ty_str = ";".join(ty_vals)
-        op_str = ";".join(op_vals)
-        cx = pos_at_logo[0][0]
-        cy = pos_at_logo[0][1]
-
-        elem = (
-            f'<rect x="{cx - r:.1f}" y="{cy - r:.1f}" '
-            f'width="{2*r:.1f}" height="{2*r:.1f}" '
-            f'fill="{color}" opacity="0">'
-            f'<animate attributeName="cx" values="{tx_str}" keyTimes="{kt_str}" '
-            f'dur="{loop_dur:.1f}s" repeatCount="indefinite"/>'
-            f'<animate attributeName="cy" values="{ty_str}" keyTimes="{kt_str}" '
-            f'dur="{loop_dur:.1f}s" repeatCount="indefinite"/>'
-            f'<animate attributeName="opacity" values="{op_str}" keyTimes="{kt_str}" '
-            f'dur="{loop_dur:.1f}s" repeatCount="indefinite"/>'
-            f'</rect>'
-        )
-        lines.append(elem)
-
-    lines.append('</g>')
-    return "\n".join(lines)
+    return ""
 
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -966,9 +764,7 @@ def build_info_panel_svg(dark: bool, ox: float, oy: float, w: float, h: float) -
     lines.append(f'<rect x="{bx}" y="{by}" width="46" height="18" rx="9" fill="{danger}" opacity="0.15"/>')
     lines.append(f'<rect x="{bx}" y="{by}" width="46" height="18" rx="9" fill="none" stroke="{danger}" stroke-width="0.8"/>')
     lines.append(
-        f'<circle cx="{bx+11}" cy="{by+9}" r="4" fill="{danger}">'
-        f'<animate attributeName="opacity" values="1;0.15;1" dur="1.2s" repeatCount="indefinite"/>'
-        f'</circle>'
+        f'<circle cx="{bx+11}" cy="{by+9}" r="4" fill="{danger}"/>'
     )
     lines.append(
         f'<text x="{bx+25}" y="{by+13}" text-anchor="middle" '
@@ -1144,37 +940,7 @@ def build_logo_overlays(
     cx: float, cy: float,
     dark: bool,
 ) -> str:
-    """Build logo name + subtitle labels that appear during each logo phase."""
-    lines = []
-    t = portrait_hold
-    n = len(logo_order)
-    for i, name in enumerate(logo_order):
-        logo = LOGOS[name]
-        t_begin = t
-        t_end = t + logo_hold
-        t_out = t + logo_hold + logo_trans
-        t_begin_n = t_begin / loop_dur
-        t_end_n = t_end / loop_dur
-        t_out_n = min(1.0, t_out / loop_dur)
-
-        opacity_vals = f"0;0;1;1;0;0"
-        kt = f"0;{t_begin_n:.3f};{min(t_begin_n+0.05,t_end_n):.3f};{t_end_n:.3f};{t_out_n:.3f};1"
-
-        lines.append(
-            f'<g opacity="0">'
-            f'<animate attributeName="opacity" values="{opacity_vals}" keyTimes="{kt}" '
-            f'dur="{loop_dur:.1f}s" repeatCount="indefinite"/>'
-            f'<text x="{cx}" y="{cy+60}" text-anchor="middle" '
-            f'fill="{logo["color"]}" font-size="18" font-weight="bold" '
-            f'font-family="Orbitron, Share Tech Mono, monospace">{logo["label"]}</text>'
-            f'<text x="{cx}" y="{cy+80}" text-anchor="middle" '
-            f'fill="{"#94A3B8" if dark else "#64748B"}" font-size="11" '
-            f'font-family="Share Tech Mono, monospace">{logo["sub"]}</text>'
-            f'</g>'
-        )
-        t += logo_hold + logo_trans
-
-    return "\n".join(lines)
+    return ""
 
 
 # ════════════════════════════════════════════════════════════════════════════
