@@ -50,9 +50,9 @@ except ImportError:
 CFG = dict(
     # SVG canvas
     SVG_W=1180, SVG_H=610,
-    # Portrait grid — 240x272 keeps 300:340 ≈ 15:17 aspect, cuts dots ~35%
-    GRID_W=240, GRID_H=272,
-    DOT_R=0.85,              # dot radius (px) — shorter reduces moiré
+    # Portrait grid — 150x170 keeps 15:17 aspect ratio, optimizes SVG file size < 1.5MB for GitHub Proxy
+    GRID_W=150, GRID_H=170,
+    DOT_R=1.35,              # dot radius (px) adjusted for grid pitch
     DOT_PITCH=1,             # 1 dot per cell
     # Contrast / sharpening
     CONTRAST=1.3,
@@ -71,11 +71,11 @@ CFG = dict(
     LOGO_HOLD=2.0,
     LOGO_TRANS=1.3,
     # Portrait drift
-    N_DRIFT_BANDS=94,
+    N_DRIFT_BANDS=60,
     DRIFT_NOISE_SIGMA=4,
     DRIFT_FRACTION=0.42,
     # Traveller dots
-    N_TRAVELLERS=600,
+    N_TRAVELLERS=300,
     # Colour palette
     BG_DARK='#0A101F',
     PANEL_DARK='#101826',
