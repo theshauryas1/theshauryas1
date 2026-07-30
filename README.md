@@ -112,12 +112,12 @@
 <tr>
 <td width="49%">
 
-[![Shaurya GitHub Stats](https://github-readme-stats.vercel.app/api?username=theshauryas1&show_icons=true&theme=transparent&hide_border=true&title_color=22D3EE&icon_color=7C3AED&text_color=F8FAFC&bg_color=0A101F&include_all_commits=true&count_private=true&hide_rank=true)](https://github.com/theshauryas1)
+[![Shaurya GitHub Stats](https://github-readme-stats-omega-steel-97.vercel.app/api?username=theshauryas1&show_icons=true&theme=transparent&hide_border=true&title_color=22D3EE&icon_color=7C3AED&text_color=F8FAFC&bg_color=0A101F&include_all_commits=true&count_private=true&hide_rank=true)](https://github.com/theshauryas1)
 
 </td>
 <td width="49%">
 
-[![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=theshauryas1&layout=compact&theme=transparent&hide_border=true&title_color=22D3EE&text_color=F8FAFC&bg_color=0A101F&langs_count=10&hide=html,css,scss)](https://github.com/theshauryas1)
+[![Top Languages](https://github-readme-stats-omega-steel-97.vercel.app/api/top-langs/?username=theshauryas1&layout=compact&theme=transparent&hide_border=true&title_color=22D3EE&text_color=F8FAFC&bg_color=0A101F&langs_count=10&hide=html,css,scss)](https://github.com/theshauryas1)
 
 </td>
 </tr>
