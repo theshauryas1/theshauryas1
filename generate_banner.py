@@ -1086,8 +1086,7 @@ def build_full_svg(
      width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <defs>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&amp;family=Orbitron:wght@700&amp;display=swap');
-    text {{ font-family: 'Share Tech Mono', 'Courier New', monospace; }}
+    text {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Share Tech Mono', 'Courier New', monospace; }}
   </style>
   <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
     <stop offset="0%"  stop-color="{bg}"/>

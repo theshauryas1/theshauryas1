@@ -9,9 +9,9 @@
 
 <!-- ──────────────────────────── BANNER ──────────────────────────────── -->
 <picture>
-  <source media="(prefers-color-scheme: dark)"  srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg?v=2">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/light.svg?v=2">
-  <img src="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg?v=2" alt="Shaurya Sharma — AI/ML Engineer" width="100%">
+  <source media="(prefers-color-scheme: dark)"  srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg?v=3">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/light.svg?v=3">
+  <img src="https://raw.githubusercontent.com/theshauryas1/theshauryas1/main/dark.svg?v=3" alt="Shaurya Sharma — AI/ML Engineer" width="100%">
 </picture>
 
 <br/>
@@ -26,7 +26,7 @@
 </h1>
 
 <h3>
-  <img src="https://readme-typing-svg.demolab.com?font=Share+Tech+Mono&duration=3000&pause=800&color=22D3EE&center=true&vCenter=true&width=720&height=45&lines=AI%2FML+Engineer+%7C+India+%F0%9F%87%AE%F0%9F%87%B3;Building+Production-Grade+Agentic+AI+Systems;LangGraph+%E2%80%A2+CrewAI+%E2%80%A2+AutoGen+%E2%80%A2+RAG+%E2%80%A2+FastAPI;PyTorch+%E2%80%A2+Kubernetes+%E2%80%A2+AWS+%E2%80%A2+Azure+%E2%80%A2+GCP;Open+to+AI%2FML+Opportunities+%E2%9C%A8" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&duration=3000&pause=800&color=22D3EE&center=true&vCenter=true&width=720&height=45&lines=AI%2FML+Engineer+--+India;Building+Production-Grade+Agentic+AI+Systems;LangGraph+--+CrewAI+--+AutoGen+--+RAG+--+FastAPI;PyTorch+--+Kubernetes+--+AWS+--+Azure+--+GCP;Open+to+AI%2FML+Opportunities" alt="Typing SVG" />
 </h3>
 
 <br/>
